@@ -3,7 +3,7 @@
  * MIT License - Copyright (c) 2026 rightkik - https://www.PRESS.in.th
  *
  * Two creatures share one physics core:
- *   naga - a serpent dragon drawn as a glowing wireframe
+ *   naga - a Thai temple serpent: emerald scales, gold crest, open red mouth
  *   cat  - a small cat drawn as solid rounded shapes
  *
  * ==== Physics (shared by both creatures) ====
@@ -60,19 +60,26 @@
 	   ============================================================ */
 	var SPEC = {
 		naga: {
-			seg: 46, link: 5.8, bend: 0.18, ease: 28, wave: 0.013, drive: 0.11,
+			seg: 52, link: 5.4, bend: 0.18, ease: 28, wave: 0.013, drive: 0.11,
 			legAt: [0.13, 0.32], legReach: 32, legFore: [8, -10],
-			bg: '#0a0805',
+			// A naga is a serpent, so its legs are never drawn. They are still
+			// simulated: the gait is what feeds traction, and traction is what
+			// gives the body its push-and-glide rhythm. Take the legs out of the
+			// physics and the creature turns into a smoothly gliding noodle.
+			showLegs: false,
+			bg: '#07130d',
 			segLen: function (i, L) {
 				var knee = Math.round(SEG * 0.42);
 				return i < knee ? L : Math.max(L * 0.42, L - (i - knee) * 0.16);
 			},
 			radius: function (i) {
-				if (i < 2) { return 8.5 + i * 2.8; }
-				if (i < 7) { return 11.3 + Math.sin(((i - 2) / 5) * Math.PI) * 4.8; }
-				if (i < 15) { return 13.2 - (i - 7) * 0.32; }
+				if (i < 2) { return 11 + i * 3.4; }
+				if (i < 7) { return 14.8 + Math.sin(((i - 2) / 5) * Math.PI) * 5.6; }
+				if (i < 15) { return 17.2 - (i - 7) * 0.36; }
+				// the tail stays a body rather than thinning to a needle - it
+				// finishes in a carved gold flame instead of a point
 				var t = (i - 15) / (SEG - 16);
-				return Math.max(0.45, 10.6 * Math.pow(1 - t, 1.18));
+				return Math.max(2.8, 14.8 * Math.pow(1 - t, 1.05));
 			},
 			draw: drawNaga
 		},
@@ -328,136 +335,275 @@
 	/* ============================================================
 	   Creature 1 - naga, a serpent dragon
 	   ============================================================ */
-	var GOLD = 'rgba(255,205,105,', CORE = 'rgba(255,246,214,', JADE = 'rgba(120,224,176,';
+	/* Painted the way the thing is actually carved and gilded: emerald body,
+	   gold crest and trim, pale belly banding, red mouth. Colour turns out to
+	   carry more of the recognition than any single shape does. */
+	var N_BODY = '#0e7a45';       // emerald body
+	var N_BODY_LT = '#17995a';    // lit green, used on the skull
+	var N_SCALE = '#0a5730';      // scale shadow
+	var N_GOLD = '#f2c74e';
+	var N_GOLD_DK = '#a8760d';
+	var N_WHITE = '#eef6f0';
+	var N_RED = '#b81f2b';
 
-	function kranok(x, y, size, side) {
-		var ox = _norX * side, oy = _norY * side, bxk = -_tanX, byk = -_tanY;
-		ctx.moveTo(x, y);
-		ctx.quadraticCurveTo(x + ox * size * 1.15 + bxk * size * 0.25, y + oy * size * 1.15 + byk * size * 0.25,
-			x + ox * size * 0.75 + bxk * size * 1.55, y + oy * size * 0.75 + byk * size * 1.55);
-		ctx.quadraticCurveTo(x + ox * size * 0.30 + bxk * size * 1.75, y + oy * size * 0.30 + byk * size * 1.75,
-			x + ox * size * 0.10 + bxk * size * 1.05, y + oy * size * 0.10 + byk * size * 1.05);
+	/* The crest: a fan of gold flame points sweeping back from the skull. On a
+	   carved naga this is the tallest thing on the animal, and seen from above
+	   it is the shape that separates a naga from any other serpent. It widens
+	   with speed and leans out of a turn. */
+	/* The tail does not taper away to a needle - it finishes in a carved gold
+	   flame, the same as the crest, which bookends the animal. */
+	function drawTailFan() {
+		var i = SEG - 1;
+		frameAt(i);
+		var cx = bx[i], cy = by[i];
+		var wag = Math.sin(clock * 2.4) * 0.25 * (0.3 + movement);
+		ctx.fillStyle = N_GOLD;
+		ctx.strokeStyle = N_GOLD_DK;
+		ctx.lineWidth = 0.9 * S;
+		for (var f = -1; f <= 1; f++) {
+			var sp = f * 0.62 + wag;
+			var dx = -_tanX * Math.cos(sp) + _norX * Math.sin(sp);
+			var dy = -_tanY * Math.cos(sp) + _norY * Math.sin(sp);
+			var nx = -dy, ny = dx;
+			var len = (16 - Math.abs(f) * 5) * S;
+			ctx.beginPath();
+			ctx.moveTo(cx, cy);
+			ctx.quadraticCurveTo(cx + dx * len * 0.6 + nx * 5 * S, cy + dy * len * 0.6 + ny * 5 * S,
+				cx + dx * len, cy + dy * len);
+			ctx.quadraticCurveTo(cx + dx * len * 0.55 - nx * 4 * S, cy + dy * len * 0.55 - ny * 4 * S,
+				cx, cy);
+			ctx.closePath();
+			ctx.fill();
+			ctx.stroke();
+		}
 	}
 
 	function drawNaga() {
-		var i, k;
-		for (var pass = 0; pass < 2; pass++) {
-			ctx.strokeStyle = (pass ? CORE : GOLD) + (pass ? 0.95 : 0.16) + ')';
-			ctx.lineWidth = (pass ? 1.2 : 5) * S;
-			ctx.beginPath();
-			for (k = 0; k < legs.length; k++) {
-				var L = legs[k], at = L.at;
-				frameAt(at);
-				var sx = bx[at] + _norX * L.side * bodyR(at) * 0.8;
-				var sy = by[at] + _norY * L.side * bodyR(at) * 0.8;
-				var kn = knee(sx, sy, L.fx, L.fy, L.side, at, 22 * S, 25 * S);
-				ctx.moveTo(sx, sy); ctx.lineTo(kn.x, kn.y); ctx.lineTo(L.fx, L.fy);
-				if (pass) {
-					var toe = Math.atan2(L.fy - kn.y, L.fx - kn.x);
-					for (var t = -1.5; t <= 1.5; t++) {
-						var ta = toe + t * 0.3;
-						ctx.moveTo(L.fx, L.fy);
-						ctx.quadraticCurveTo(L.fx + Math.cos(ta) * 7 * S, L.fy + Math.sin(ta) * 7 * S,
-							L.fx + Math.cos(ta + 0.35) * 10 * S, L.fy + Math.sin(ta + 0.35) * 10 * S);
-					}
+		var i;
+		var E = edgeArrays();
+
+		drawTailFan();
+
+		if (spec.showLegs) {
+			for (var pass = 0; pass < 2; pass++) {
+				ctx.strokeStyle = (pass ? '#fff6d6' : 'rgba(242,199,78,.2)');
+				ctx.lineWidth = (pass ? 1.2 : 5) * S;
+				ctx.beginPath();
+				for (var k = 0; k < legs.length; k++) {
+					var L = legs[k], at = L.at;
+					frameAt(at);
+					var sx = bx[at] + _norX * L.side * bodyR(at) * 0.8;
+					var sy = by[at] + _norY * L.side * bodyR(at) * 0.8;
+					var kn = knee(sx, sy, L.fx, L.fy, L.side, at, 22 * S, 25 * S);
+					ctx.moveTo(sx, sy); ctx.lineTo(kn.x, kn.y); ctx.lineTo(L.fx, L.fy);
 				}
+				ctx.stroke();
 			}
-			ctx.stroke();
 		}
 
-		ctx.strokeStyle = GOLD + '.72)';
-		ctx.lineWidth = 1.15 * S;
+		// ---- body: solid emerald, the way the thing is actually painted ----
+		ctx.beginPath();
+		tracePath(E[0], E[1]);
+		var rxs = E[2].slice().reverse(), rys = E[3].slice().reverse();
+		ctx.lineTo(rxs[0], rys[0]);
+		tracePath(rxs, rys, false);
+		ctx.closePath();
+		ctx.fillStyle = N_BODY;
+		ctx.fill();
+
+		/* The pale belly banding that runs the length of a carved naga, right on
+		   the edge where the green turns over. Two strokes, white outside gold. */
+		ctx.lineWidth = 2.6 * S;
+		ctx.strokeStyle = N_WHITE;
+		ctx.beginPath(); tracePath(E[0], E[1]); tracePath(E[2], E[3]); ctx.stroke();
+		ctx.lineWidth = 1.1 * S;
+		ctx.strokeStyle = N_GOLD;
+		ctx.beginPath(); tracePath(E[0], E[1]); tracePath(E[2], E[3]); ctx.stroke();
+
+		// ---- scales ----
+		ctx.strokeStyle = N_SCALE;
+		ctx.lineWidth = 0.8 * S;
 		ctx.beginPath();
 		for (i = 3; i < SEG - 3; i += 2) {
 			frameAt(i);
-			kranok(bx[i], by[i], bodyR(i) * 0.95 + 2.5 * S, (i % 4 === 3) ? 1 : -1);
+			var r = bodyR(i);
+			for (var q = 1; q <= 2; q++) {
+				var w2 = r * (q === 1 ? 0.42 : 0.8);
+				ctx.moveTo(bx[i] + _norX * w2, by[i] + _norY * w2);
+				ctx.quadraticCurveTo(bx[i] - _tanX * r * 0.6, by[i] - _tanY * r * 0.6,
+					bx[i] - _norX * w2, by[i] - _norY * w2);
+			}
 		}
 		ctx.stroke();
 
-		ctx.strokeStyle = JADE + '.34)';
-		ctx.lineWidth = 0.85 * S;
-		ctx.beginPath();
-		for (i = 3; i < SEG - 2; i++) {
+		/* The dorsal ridge: a row of gold spikes down the spine. On the statue
+		   they stand up along the back, so from above they sit right on the
+		   centre line - which makes this the cheapest strong naga cue we have. */
+		ctx.fillStyle = N_GOLD;
+		for (i = 5; i < SEG - 4; i += 2) {
 			frameAt(i);
-			var r2 = bodyR(i) * 0.9;
-			var tipx = bx[i] + _tanX * r2 * 0.55, tipy = by[i] + _tanY * r2 * 0.55;
-			ctx.moveTo(bx[i] + _norX * r2, by[i] + _norY * r2);
-			ctx.quadraticCurveTo(bx[i] + _norX * r2 * 0.6 + _tanX * r2 * 0.45,
-				by[i] + _norY * r2 * 0.6 + _tanY * r2 * 0.45, tipx, tipy);
-			ctx.quadraticCurveTo(bx[i] - _norX * r2 * 0.6 + _tanX * r2 * 0.45,
-				by[i] - _norY * r2 * 0.6 + _tanY * r2 * 0.45, bx[i] - _norX * r2, by[i] - _norY * r2);
-		}
-		ctx.stroke();
-
-		var E = edgeArrays();
-		for (var p2 = 0; p2 < 2; p2++) {
-			ctx.strokeStyle = GOLD + (p2 ? 0.95 : 0.15) + ')';
-			ctx.lineWidth = (p2 ? 1.3 : 6) * S;
-			ctx.beginPath(); tracePath(E[0], E[1]); tracePath(E[2], E[3]); ctx.stroke();
+			var sr = bodyR(i) * 0.1 + 0.7 * S;
+			var tip = bodyR(i) * 0.2 + 2.2 * S;
+			ctx.beginPath();
+			ctx.moveTo(bx[i] + _tanX * tip, by[i] + _tanY * tip);
+			ctx.lineTo(bx[i] + _norX * sr, by[i] + _norY * sr);
+			ctx.lineTo(bx[i] - _norX * sr, by[i] - _norY * sr);
+			ctx.closePath();
+			ctx.fill();
 		}
 
-		ctx.strokeStyle = CORE + '.5)';
-		ctx.lineWidth = 0.9 * S;
+		/* Ornamental collar, the gold band cinched around the body behind the
+		   head on every temple naga. */
+		var cat2 = Math.min(8, SEG - 1);
+		frameAt(cat2);
+		var cr = bodyR(cat2) * 1.12;
+		ctx.strokeStyle = N_GOLD;
+		ctx.lineWidth = 4.5 * S;
 		ctx.beginPath();
-		ctx.moveTo(bx[0], by[0]);
-		for (i = 1; i < SEG - 1; i++) { ctx.quadraticCurveTo(bx[i], by[i], (bx[i] + bx[i + 1]) / 2, (by[i] + by[i + 1]) / 2); }
-		ctx.lineTo(bx[SEG - 1], by[SEG - 1]);
+		ctx.moveTo(bx[cat2] + _norX * cr, by[cat2] + _norY * cr);
+		ctx.lineTo(bx[cat2] - _norX * cr, by[cat2] - _norY * cr);
+		ctx.stroke();
+		ctx.strokeStyle = N_WHITE;
+		ctx.lineWidth = 1.4 * S;
 		ctx.stroke();
 
+		// ================= head =================
 		ctx.save();
 		ctx.translate(bx[0], by[0]);
 		ctx.rotate(heading);
-		var u = S;
-		ctx.strokeStyle = GOLD + '.95)';
-		ctx.lineWidth = 1.35 * u;
+		/* The head is deliberately oversized against the body. On the carvings
+		   it is the whole point of the animal, and at this scale a head drawn
+		   to realistic proportion just disappears. */
+		var u = S * 1.3;
+
+		/* Crest, drawn here in head coordinates rather than out on the body:
+		   anywhere else and the skull is painted over the top of it. Seven
+		   flame petals raked backward, longest in the middle. */
+		var grow = 0.92 + movement * 0.3;
+		ctx.strokeStyle = N_GOLD_DK;
+		ctx.lineWidth = 1 * u;
+		for (var cside = -1; cside <= 1; cside += 2) {
+			for (var cf = 0; cf < 3; cf++) {
+				var cang = cside * (2.56 + cf * 0.28);
+				var clen = (34 + (cf === 1 ? 14 : 0)) * u * grow;
+				var cdx = Math.cos(cang), cdy = Math.sin(cang);
+				var cnx = -cdy, cny = cdx, cw = 5.4 * u;
+				ctx.beginPath();
+				ctx.moveTo(cnx * cw * 0.3, cny * cw * 0.3);
+				ctx.quadraticCurveTo(cdx * clen * 0.6 + cnx * cw, cdy * clen * 0.6 + cny * cw,
+					cdx * clen, cdy * clen);
+				ctx.quadraticCurveTo(cdx * clen * 0.6 - cnx * cw, cdy * clen * 0.6 - cny * cw,
+					-cnx * cw * 0.3, -cny * cw * 0.3);
+				ctx.closePath();
+				ctx.fillStyle = N_GOLD;
+				ctx.fill();
+				ctx.stroke();
+			}
+		}
+
+		// skull
 		ctx.beginPath();
-		ctx.moveTo(30 * u, 0);
-		ctx.bezierCurveTo(20 * u, -7 * u, 8 * u, -13 * u, -10 * u, -12 * u);
-		ctx.bezierCurveTo(-19 * u, -8 * u, -19 * u, 8 * u, -10 * u, 12 * u);
-		ctx.bezierCurveTo(8 * u, 13 * u, 20 * u, 7 * u, 30 * u, 0);
-		ctx.closePath(); ctx.stroke();
-		ctx.beginPath();
-		for (var ts = -1; ts <= 1; ts += 2) { ctx.moveTo(24 * u, ts * 4.5 * u); ctx.lineTo(28 * u, ts * 8 * u); }
+		ctx.moveTo(40 * u, 0);
+		ctx.bezierCurveTo(33 * u, -6.5 * u, 16 * u, -13 * u, -8 * u, -12.5 * u);
+		ctx.bezierCurveTo(-19 * u, -9 * u, -19 * u, 9 * u, -8 * u, 12.5 * u);
+		ctx.bezierCurveTo(16 * u, 13 * u, 33 * u, 6.5 * u, 40 * u, 0);
+		ctx.closePath();
+		ctx.fillStyle = N_BODY_LT;
+		ctx.fill();
+		ctx.strokeStyle = N_GOLD;
+		ctx.lineWidth = 1.5 * u;
 		ctx.stroke();
-		ctx.strokeStyle = CORE + '.9)';
-		ctx.lineWidth = 1.15 * u;
+
+		/* The open mouth. A naga is nearly always carved mid-roar, and from
+		   above that is a red wedge splitting the snout. */
+		var gape = 1 + Math.sin(clock * 1.7) * 0.12;
+		ctx.fillStyle = N_RED;
 		ctx.beginPath();
-		for (var cs = -1; cs <= 1; cs++) {
-			ctx.moveTo(-2 * u, cs * 6 * u);
-			ctx.quadraticCurveTo(-9 * u, cs * 8 * u, -13 * u - Math.abs(cs) * 2 * u, cs * 5 * u);
+		ctx.moveTo(9 * u, 0);
+		ctx.quadraticCurveTo(24 * u, -5 * u * gape, 36 * u, -6.5 * u * gape);
+		ctx.quadraticCurveTo(38 * u, 0, 36 * u, 6.5 * u * gape);
+		ctx.quadraticCurveTo(24 * u, 5 * u * gape, 9 * u, 0);
+		ctx.closePath();
+		ctx.fill();
+		ctx.strokeStyle = N_GOLD;
+		ctx.lineWidth = 1.2 * u;
+		ctx.stroke();
+
+		// forked tongue, flicking out of the open mouth
+		var flick = clock % 2.7;
+		if (flick < 0.5) {
+			var reach = 13 * u * Math.sin((flick / 0.5) * Math.PI);
+			ctx.strokeStyle = '#ff5a68';
+			ctx.lineWidth = 1.5 * u;
+			ctx.beginPath();
+			ctx.moveTo(34 * u, 0);
+			ctx.lineTo(34 * u + reach, 0);
+			ctx.moveTo(34 * u + reach, 0);
+			ctx.lineTo(34 * u + reach + 5 * u, -3.6 * u);
+			ctx.moveTo(34 * u + reach, 0);
+			ctx.lineTo(34 * u + reach + 5 * u, 3.6 * u);
+			ctx.stroke();
+		}
+
+		// fangs
+		ctx.fillStyle = N_WHITE;
+		for (var fg = -1; fg <= 1; fg += 2) {
+			ctx.beginPath();
+			ctx.moveTo(33 * u, fg * 5.6 * u * gape);
+			ctx.lineTo(28 * u, fg * 2 * u * gape);
+			ctx.lineTo(26 * u, fg * 5.8 * u * gape);
+			ctx.closePath();
+			ctx.fill();
+		}
+
+		/* Gold scrollwork over the brow. Two curls per side is enough to suggest
+		   carving without turning into noise at this size. */
+		ctx.strokeStyle = N_GOLD;
+		ctx.lineWidth = 1.3 * u;
+		ctx.beginPath();
+		for (var cs = -1; cs <= 1; cs += 2) {
+			ctx.moveTo(2 * u, cs * 11 * u);
+			ctx.quadraticCurveTo(-8 * u, cs * 14 * u, -13 * u, cs * 7 * u);
+			ctx.moveTo(8 * u, cs * 8 * u);
+			ctx.quadraticCurveTo(2 * u, cs * 13 * u, -3 * u, cs * 9 * u);
 		}
 		ctx.stroke();
-		ctx.strokeStyle = GOLD + '.85)';
-		ctx.lineWidth = 1.25 * u;
-		ctx.beginPath();
-		for (var hs = -1; hs <= 1; hs += 2) {
-			ctx.moveTo(-8 * u, hs * 11 * u);
-			ctx.quadraticCurveTo(-26 * u, hs * 20 * u, -40 * u, hs * 13 * u);
-			ctx.quadraticCurveTo(-33 * u, hs * 10 * u, -24 * u, hs * 12 * u);
-		}
-		ctx.stroke();
-		ctx.strokeStyle = JADE + '.85)';
-		ctx.lineWidth = 1.1 * u;
-		var wob = Math.sin(clock * 3.1) * 3 * u * (0.4 + movement);
+
+		/* Chin barbels, swept back along the body. Pointing them forward makes
+		   them read as insect antennae, the one silhouette a naga must not have. */
+		ctx.strokeStyle = N_GOLD;
+		ctx.lineWidth = 1.2 * u;
+		var wob = Math.sin(clock * 3.1) * 3.5 * u * (0.4 + movement);
 		ctx.beginPath();
 		for (var ws = -1; ws <= 1; ws += 2) {
-			ctx.moveTo(27 * u, ws * 5 * u);
-			ctx.bezierCurveTo(40 * u, ws * 12 * u + wob, 46 * u, ws * 24 * u + wob, 36 * u, ws * 30 * u + wob);
-			ctx.quadraticCurveTo(30 * u, ws * 31 * u + wob, 31 * u, ws * 24 * u + wob);
+			// One open sweep each, trailing back past the skull. Curling them round
+			// into a closed loop turns the pair into a ring that reads as a collar
+			// worn on the head, which is not what a barbel is.
+			ctx.moveTo(18 * u, ws * 9 * u);
+			ctx.bezierCurveTo(2 * u, ws * 21 * u + wob, -26 * u, ws * 27 * u + wob,
+				-52 * u, ws * 19 * u + wob);
 		}
 		ctx.stroke();
+
+		// eyes, tracking the pointer
 		var look = clamp(angDiff(heading, Math.atan2(ty - by[0], tx - bx[0])), -0.6, 0.6);
 		for (var es = -1; es <= 1; es += 2) {
-			ctx.fillStyle = CORE + '.95)';
-			ctx.beginPath(); ctx.ellipse(6 * u, es * 8 * u, 5 * u, 3.4 * u, es * 0.25, 0, TAU); ctx.fill();
-			ctx.fillStyle = '#0a0805';
+			ctx.fillStyle = N_GOLD;
 			ctx.beginPath();
-			ctx.ellipse((6 + Math.cos(look) * 1.4) * u, (es * 8 + Math.sin(look) * 1.4) * u, 1.15 * u, 2.5 * u, look, 0, TAU);
+			ctx.ellipse(4 * u, es * 8 * u, 6 * u, 4.2 * u, es * 0.25, 0, TAU);
+			ctx.fill();
+			ctx.fillStyle = N_WHITE;
+			ctx.beginPath();
+			ctx.ellipse(4 * u, es * 8 * u, 4.2 * u, 2.8 * u, es * 0.25, 0, TAU);
+			ctx.fill();
+			ctx.fillStyle = '#05281a';
+			ctx.beginPath();
+			ctx.ellipse((4 + Math.cos(look) * 1.6) * u, (es * 8 + Math.sin(look) * 1.6) * u,
+				1.3 * u, 2.4 * u, look, 0, TAU);
 			ctx.fill();
 		}
 		ctx.restore();
 	}
-
 	/* ============================================================
 	   Creature 2 - cat
 	   Drawn as solid rounded shapes rather than a wireframe skeleton
