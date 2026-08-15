@@ -3,7 +3,9 @@
 Procedural creatures that walk, turn and chase the mouse pointer on a `<canvas>`.
 
 No dependencies, no build step, no framework. One JS file and one CSS file, about
-**9 KB gzipped**. Drop them on a page and a creature starts living in a box.
+**10 KB gzipped**. Drop them on a page and a creature starts living in a box.
+
+![A naga chasing the pointer](docs/demo.gif)
 
 **[Live demo](https://rightkik.github.io/cursor-critters/)** &middot;
 **[Live tuner](https://rightkik.github.io/cursor-critters/tuner.html)**
@@ -13,7 +15,7 @@ Two creatures ship with it, and a button swaps between them:
 | mode | what it is |
 | --- | --- |
 | `cat` | a small cat drawn as solid rounded shapes, with a tapering tail and slit pupils |
-| `naga` | a serpent dragon drawn as a glowing gold wireframe, with fins, horns and barbels |
+| `naga` | a Thai temple serpent: emerald scales, a gold flame crest, an open red mouth and a flicking tongue |
 
 > **It needs a mouse.** On a touch screen there is no hovering pointer to chase, so
 > the library hides itself completely and costs the page nothing. That includes
@@ -74,8 +76,8 @@ built-in numbers. Anything you leave out keeps the creature's own default.
     ease: 28,          // how fast joints ease toward their goal angle
     bend: 0.18,        // maximum bend of a single joint, in radians
     wave: 0.013,       // amplitude of the tail wave, scaled by speed
-    seg: 46,           // number of body joints
-    link: 5.8          // length of one joint, in pixels
+    seg: 52,           // number of body joints
+    link: 5.4          // length of one joint, in pixels
   };
 </script>
 <script src="cursor-critters.js" defer></script>
@@ -127,7 +129,7 @@ It also stands down completely under `prefers-reduced-motion: reduce`.
 
 ## Cost
 
-- **~9 KB gzipped** for the JS, well under 1 KB for the CSS.
+- **~10 KB gzipped** for the JS, well under 1 KB for the CSS.
 - Stops dead when the tab is hidden (`visibilitychange`) or when the canvas
   scrolls out of view (`IntersectionObserver`) — it never burns cycles you
   cannot see.
@@ -138,8 +140,9 @@ It also stands down completely under `prefers-reduced-motion: reduce`.
 - `pointer-events: none` on the canvas: clicks pass straight through to whatever
   sits behind it.
 
-Measured on a desktop browser at 60 Hz, `cat` costs about **0.13 ms per frame**
-and `naga` about **0.39 ms**, against a 16.7 ms budget.
+Timed on a desktop browser over a 900×320 canvas, one physics substep plus a
+full redraw costs about **0.24 ms** for `cat` and **0.55 ms** for `naga`. At
+60 Hz that is 1.4% and 3.3% of the 16.7 ms frame budget.
 
 ## Browser support
 
