@@ -1,0 +1,16 @@
+# dependencies (this project has none, but a consumer's tooling might)
+node_modules/
+
+# editors
+.vscode/
+.idea/
+*.swp
+
+# OS cruft
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# build / scratch
+dist/
+*.log

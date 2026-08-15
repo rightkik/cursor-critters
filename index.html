@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>cursor-critters &mdash; procedural creatures that chase your mouse</title>
+<meta name="description" content="A dependency-free JavaScript library that draws a procedurally animated creature which walks, turns and chases the mouse pointer on a canvas.">
+<link rel="stylesheet" href="src/cursor-critters.css">
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 40px 20px 64px;
+    background: #0d1117; color: #e6edf3;
+    font: 16px/1.7 -apple-system, "Segoe UI", system-ui, sans-serif;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 30px; margin: 0 0 6px; letter-spacing: -.02em; }
+  .tag { margin: 0 0 4px; color: #8b949e; font-size: 17px; }
+  .meta { margin: 0 0 28px; color: #6e7681; font-size: 14px; }
+  .meta a { color: #58a6ff; }
+  h2 { font-size: 18px; margin: 36px 0 10px; }
+  p { margin: 0 0 14px; }
+  pre {
+    background: #161b22; border: 1px solid #30363d; border-radius: 8px;
+    padding: 14px 16px; overflow-x: auto;
+    font: 13px/1.65 ui-monospace, Consolas, monospace; color: #c9d1d9;
+  }
+  code { font-family: ui-monospace, Consolas, monospace; font-size: .92em; }
+  p code, li code { background: #161b22; padding: 2px 6px; border-radius: 4px; }
+  ul { margin: 0 0 14px; padding-left: 22px; }
+  li { margin-bottom: 6px; }
+  .hint { color: #8b949e; font-size: 14px; }
+
+  /* Demo-page only: the library hides itself where there is no pointer, which
+     would otherwise leave a visitor on a phone staring at a blank page. */
+  .no-pointer { display: none; }
+  @media not all and (hover: hover) and (pointer: fine) {
+    .no-pointer { display: block; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .no-pointer { display: block; }
+  }
+  .no-pointer {
+    border: 1px dashed #30363d; border-radius: 10px;
+    padding: 26px 20px; text-align: center; color: #8b949e;
+    background: #11161d; margin-bottom: 22px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>cursor-critters</h1>
+  <p class="tag">Procedural creatures that walk, turn and chase your mouse pointer.</p>
+  <p class="meta">Zero dependencies &middot; ~9&nbsp;KB gzipped &middot; MIT &middot;
+    <a href="tuner.html">open the live tuner</a></p>
+
+  <div class="no-pointer">
+    <strong>This demo needs a mouse.</strong><br>
+    There is no hovering pointer to chase on a touch screen, so the library hides
+    itself instead of showing a dead box. Open this page on a desktop browser.
+    <br><span class="hint">Browser device-emulation modes report a coarse pointer too, so the
+    demo will stay hidden there as well.</span>
+  </div>
+
+  <div class="cursor-critter-stage">
+    <canvas id="cursor-critter" class="cursor-critter-canvas" aria-hidden="true"></canvas>
+    <button type="button" id="cursor-critter-swap" class="cursor-critter-swap">Reptile</button>
+  </div>
+
+  <p class="hint">Move the mouse across the box. Leave it alone for a moment and the
+    creature wanders off on its own. The button in the corner swaps between the two
+    creatures, and your choice is remembered.</p>
+
+  <h2>Use it</h2>
+  <pre><code>&lt;link rel="stylesheet" href="cursor-critters.css"&gt;
+
+&lt;div class="cursor-critter-stage"&gt;
+  &lt;canvas id="cursor-critter" class="cursor-critter-canvas" aria-hidden="true"&gt;&lt;/canvas&gt;
+  &lt;button type="button" id="cursor-critter-swap" class="cursor-critter-swap"&gt;Reptile&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script src="cursor-critters.js" defer&gt;&lt;/script&gt;</code></pre>
+  <p>That is the whole integration. The button is optional &mdash; drop it and you
+    get a single creature. Nothing is configured in JavaScript unless you want to.</p>
+
+  <h2>What makes it move</h2>
+  <ul>
+    <li><strong>Traction.</strong> The body can only accelerate as hard as its planted
+      feet allow, so a crouch&ndash;push&ndash;glide rhythm falls out of the physics
+      rather than being keyframed.</li>
+    <li><strong>Inertia everywhere.</strong> Speed is momentum and turning accumulates
+      force, so it has to lean into a corner before it can take it.</li>
+    <li><strong>A wave down the spine.</strong> Each joint eases toward its goal angle
+      a little slower than the one ahead of it, which is what makes the body flow
+      instead of snapping into shape.</li>
+    <li><strong>A fixed 1/120s timestep,</strong> so the creature covers the same
+      ground per second on a 60&nbsp;Hz laptop and a 144&nbsp;Hz monitor.</li>
+  </ul>
+
+  <h2>It gets out of the way</h2>
+  <ul>
+    <li>Hidden entirely without <code>(hover: hover) and (pointer: fine)</code></li>
+    <li>Hidden entirely under <code>prefers-reduced-motion: reduce</code></li>
+    <li>Stops dead when the tab is hidden or the canvas scrolls out of view</li>
+    <li><code>pointer-events: none</code>, so clicks pass through to whatever is behind</li>
+    <li>Fixed canvas height, so nothing shifts when the script attaches</li>
+  </ul>
+
+  <p class="meta">Built by rightkik &middot; <a href="https://www.press.in.th/">www.PRESS.in.th</a></p>
+
+</div>
+<script src="src/cursor-critters.js" defer></script>
+</body>
+</html>

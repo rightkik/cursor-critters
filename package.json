@@ -1,0 +1,32 @@
+{
+  "name": "cursor-critters",
+  "version": "1.0.0",
+  "description": "Procedural creatures that walk, turn and chase the mouse pointer on a canvas. Vanilla JS, zero dependencies, ~9 KB gzipped.",
+  "main": "src/cursor-critters.js",
+  "files": [
+    "src/",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "cursor",
+    "cursor-effects",
+    "cursor-animation",
+    "mouse-follower",
+    "pointer",
+    "canvas",
+    "animation",
+    "procedural-animation",
+    "inverse-kinematics",
+    "creature",
+    "vanilla-js",
+    "zero-dependencies",
+    "no-dependencies",
+    "javascript"
+  ],
+  "author": "rightkik (https://www.press.in.th/)",
+  "homepage": "https://www.press.in.th/",
+  "license": "MIT",
+  "sideEffects": true,
+  "browser": "src/cursor-critters.js"
+}

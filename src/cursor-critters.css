@@ -1,0 +1,78 @@
+/*!
+ * cursor-critters v1.0.0
+ * MIT License - Copyright (c) 2026 rightkik - https://www.PRESS.in.th
+ */
+
+/* The stage is HIDDEN BY DEFAULT. This is deliberate, and it is the single
+   most important rule in this file:
+
+   - The creature chases a pointer. A touch device has no hovering pointer to
+     chase, so there is nothing to show. Hiding it with `display: none` rather
+     than dimming it means the box takes up NO vertical space at all, so the
+     page height is byte-for-byte what it would be without this library and
+     there is no layout shift.
+   - The switch button lives inside the stage, so it disappears along with it.
+   - Any browser too old to understand `(hover: hover)` also lands here, which
+     is the safe outcome.
+
+   The script applies the same two tests before it allocates anything, so CSS
+   and JS always agree on whether the creature exists. */
+.cursor-critter-stage { display: none; }
+
+@media (hover: hover) and (pointer: fine) {
+  .cursor-critter-stage {
+    display: block;
+    position: relative;          /* anchor for the switch button */
+    max-width: 900px;
+    margin: 0 auto 22px;
+    background: #0b0e14;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .cursor-critter-canvas {
+    display: block;
+    width: 100%;
+    height: 320px;        /* a fixed height means no layout shift when JS attaches */
+    pointer-events: none; /* clicks pass straight through to whatever is underneath */
+  }
+
+  /* Switch button (cat <-> naga).
+     aria-hidden belongs on the <canvas> only, never here, so the button stays
+     reachable by keyboard. Its label is written by the script; if the script
+     never runs, the button is hidden along with the stage. */
+  .cursor-critter-swap {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    z-index: 2;
+    min-height: 34px;
+    padding: 7px 14px;
+    border: 1px solid rgba(255, 255, 255, .28);
+    border-radius: 999px;
+    background: rgba(0, 0, 0, .45);
+    color: #fff;
+    font: inherit;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .cursor-critter-swap:hover,
+  .cursor-critter-swap:focus {
+    background: rgba(0, 0, 0, .72);
+    border-color: #fff;
+  }
+}
+
+/* Narrow screens that still report a fine pointer - a tablet with a stylus, or
+   a small laptop window. Shorten the box so it does not push real content off
+   the screen. */
+@media (hover: hover) and (pointer: fine) and (max-width: 767px) {
+  .cursor-critter-canvas { height: 200px; }
+}
+
+/* Someone who asked their operating system to reduce motion gets nothing at
+   all. The script bails on this too; the CSS is the belt to its braces. */
+@media (prefers-reduced-motion: reduce) {
+  .cursor-critter-stage { display: none; }
+}
