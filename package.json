@@ -25,7 +25,7 @@
     "javascript"
   ],
   "author": "rightkik (https://www.press.in.th/)",
-  "homepage": "https://www.press.in.th/",
+  "homepage": "https://rightkik.github.io/cursor-critters/",
   "license": "MIT",
   "sideEffects": true,
   "browser": "src/cursor-critters.js"
