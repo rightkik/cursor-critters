@@ -27,6 +27,13 @@ Two creatures ship with it, and a button swaps between them:
 Copy `src/cursor-critters.js` and `src/cursor-critters.css` into your project.
 There is nothing to install.
 
+Or load both from jsDelivr:
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rightkik/cursor-critters@1.0.0/src/cursor-critters.css">
+<script src="https://cdn.jsdelivr.net/gh/rightkik/cursor-critters@1.0.0/src/cursor-critters.js" defer></script>
+```
+
 ## Use
 
 ```html
