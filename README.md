@@ -3,7 +3,7 @@
 Procedural creatures that walk, turn and chase the mouse pointer on a `<canvas>`.
 
 No dependencies, no build step, no framework. One JS file and one CSS file, about
-**10 KB gzipped**. Drop them on a page and a creature starts living in a box.
+**11.5 KB gzipped** together. Drop them on a page and a creature starts living in a box.
 
 ![A naga chasing the pointer](docs/demo.gif)
 
@@ -129,7 +129,7 @@ It also stands down completely under `prefers-reduced-motion: reduce`.
 
 ## Cost
 
-- **~10 KB gzipped** for the JS, well under 1 KB for the CSS.
+- **~10 KB gzipped** for the JS and **~1.3 KB gzipped** for the CSS.
 - Stops dead when the tab is hidden (`visibilitychange`) or when the canvas
   scrolls out of view (`IntersectionObserver`) — it never burns cycles you
   cannot see.

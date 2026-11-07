@@ -1,7 +1,7 @@
 {
   "name": "cursor-critters",
   "version": "1.0.0",
-  "description": "Procedural creatures that walk, turn and chase the mouse pointer on a canvas. Vanilla JS, zero dependencies, ~9 KB gzipped.",
+  "description": "Procedural creatures that walk, turn and chase the mouse pointer on a canvas. Vanilla JS, zero dependencies, ~10 KB gzipped.",
   "main": "src/cursor-critters.js",
   "files": [
     "src/",
